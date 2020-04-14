@@ -975,7 +975,7 @@ if __name__ == "__main__":
     https://prium.github.io/falcon/
     """
     url_list = [
-        "https://technext.github.io/crafted/index.html",
+        "https://uselooper.com/",
     ]
     n1 = datetime.now()
     spider = TemplateCrawler(url_list, save_base_dir="/home/cxu/spider-template/", header={'User-Agent': config.default_ua},

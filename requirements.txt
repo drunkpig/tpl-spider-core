@@ -15,4 +15,4 @@ fire
 python-slugify
 validators
 aiosmtplib
-uvloop
+#uvloop
