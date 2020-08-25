@@ -17,14 +17,14 @@ from config import logger
 
 
 class TemplateCrawler(object):
-
     logger = logger
     CMD_DOWNLOAD = 'download'
     CMD_QUIT = 'quit'
     FILE_TYPE_BIN = 'bin'
     FILE_TYPE_TEXT = 'text'
 
-    def __init__(self, url_list, save_base_dir, header, encoding=None, grab_out_site_link=False, to_single_page=False, full_site=False, ref_model=False, framework=None):
+    def __init__(self, url_list, save_base_dir, header, encoding=None, grab_out_site_link=False, to_single_page=False,
+                 full_site=False, ref_model=False, framework=None):
         """
 
         :param url_list:
@@ -47,12 +47,12 @@ class TemplateCrawler(object):
         self.header = header
         self.charset = encoding
         self.is_grab_outer_link = grab_out_site_link
-        self.is_ref_model= ref_model
+        self.is_ref_model = ref_model
         if self.is_ref_model:
             self.is_grab_outer_link = False  # 盗链模式下，一定不抓外部的资源,内部资源也会被改写绝对路径
-        self.is_to_single_page=to_single_page  # 是否把图片，css, js等压缩到一个页面里
-        self.single_page = []  #report生成时使用
-        self.is_full_site = full_site          #是否是整站
+        self.is_to_single_page = to_single_page  # 是否把图片，css, js等压缩到一个页面里
+        self.single_page = []  # report生成时使用
+        self.is_full_site = full_site  # 是否是整站
         self.html_link_queue = Queue()  # html 页面的队列
         for u in url_list:
             self.html_link_queue.put(u)
@@ -61,7 +61,7 @@ class TemplateCrawler(object):
         self.download_finished = False  # url消耗完毕不代表网络请求都返回了
         self.task_finished = False  # 全部网络都返回， eventloop结束
         self.zip_result_file = None
-        self.file_name_dup_checker = {} # file_name => url 。用于检查生成的文件名字是否有重复的，如果重复了就要重新生成了
+        self.file_name_dup_checker = {}  # file_name => url 。用于检查生成的文件名字是否有重复的，如果重复了就要重新生成了
         self.framework_support = framework
         self.thread = threading.Thread(target=self.__download_thread)
         self.thread.start()
@@ -117,20 +117,21 @@ class TemplateCrawler(object):
                                                 <h2>single page template</h2><br>\n
                                             """)
                 for u in self.single_page:
-                    await f.writelines(f"<a target='_blank' class='key' href='{u}'>{u}</a> <br>\n" )
+                    await f.writelines(f"<a target='_blank' class='key' href='{u}'>{u}</a> <br>\n")
             # #===========================================用户输入的原始页面+派生的html
             await f.writelines("""
             <hr /><br>
             <h2>Template source url</h2><br>\n
         """)
             for disk_file, file, url in self.downloaded_html_url:
-                await f.writelines(f"<a target='_blank' class='key' href='{url}'>{url}</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =>  <a class='value' target='_blank' href='./{file}'>{file}</a> <br>\n" )
+                await f.writelines(
+                    f"<a target='_blank' class='key' href='{url}'>{url}</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =>  <a class='value' target='_blank' href='./{file}'>{file}</a> <br>\n")
             # #######################===========全部下载资源
             await f.writelines(f"""
             <hr />
             
             <h2>Spider report ({len(self.dl_urls.keys())} files)</h2><br>\n
-            """ )
+            """)
 
             for url, path in self.dl_urls.items():
                 await f.writelines(
@@ -161,7 +162,7 @@ class TemplateCrawler(object):
     def __set_dup_url(self, url, file_save_path):
         url = format_url(url)
         if file_save_path:
-            file_save_path= file_save_path.replace("//", '/')
+            file_save_path = file_save_path.replace("//", '/')
         self.dl_urls[url] = file_save_path
 
     def __get_tpl_full_path(self):
@@ -181,7 +182,7 @@ class TemplateCrawler(object):
         :param full_path:
         :return:
         """
-        zip_file = "%s.zip"% full_path[len(f'{self.parent_save_dir}')+1:]
+        zip_file = "%s.zip" % full_path[len(f'{self.parent_save_dir}') + 1:]
         return zip_file
 
     def __get_zip_full_path(self):
@@ -222,7 +223,7 @@ class TemplateCrawler(object):
         return template_dir, "js", "img", "css", "other"
 
     def __get_file_name(self, url, i):
-        return  f"index_{i}.html"
+        return f"index_{i}.html"
 
     def __log_error_resource(self, url, path):
         self.error_grab_resource[url] = path
@@ -276,14 +277,14 @@ class TemplateCrawler(object):
 
             if self.is_ref_model:
                 img['src'] = abs_link
-            elif is_same_web_site_link(url, abs_link)  or self.is_grab_outer_link:
+            elif is_same_web_site_link(url, abs_link) or self.is_grab_outer_link:
                 file_name = get_file_name_from_url(abs_link, self.file_name_dup_checker, "png")
                 file_save_path = f"{self.__get_img_full_path()}/{file_name}"
                 replace_url = f"{self.img_dir}/{file_name}"
                 img['src'] = replace_url
 
                 self.__url_enqueue(abs_link, file_save_path, self.FILE_TYPE_BIN)
-            else: # 修正为绝对链接
+            else:  # 修正为绝对链接
                 img['src'] = abs_link
 
             if img.get("crossorigin ") is not None:
@@ -336,7 +337,7 @@ class TemplateCrawler(object):
             else:
                 style['style'] = style['style'].replace(resource_url, abs_link)
 
-    async def __process_in_html_css_resource(self, soup, url):
+    async def __process_in_html_css_resource(self, soup, url):  # TODO  @import url("../fonts/font-awesome/css/font-awesome.css"); http://www.qdujava.com/user/css/style.css
         style_css = soup.find_all("style")
         if style_css is None:
             return
@@ -347,7 +348,7 @@ class TemplateCrawler(object):
             all_urls = re.findall('url\(.*?\)', css_content)
             if all_urls is not None:
                 for raw_u in all_urls:
-                    u = self.__get_style_url_link(raw_u) # > url('xxx') or url(xxx)
+                    u = self.__get_style_url_link(raw_u)  # > url('xxx') or url(xxx)
                     if is_inline_resource(u):  # 内嵌base64图片
                         continue
                     abs_link = get_abs_url(url, u)
@@ -363,7 +364,7 @@ class TemplateCrawler(object):
                             replace_url = f"{self.css_dir}/{file_name}"
                         css_content = css_content.replace(raw_u, f'url({replace_url})')
                         self.__url_enqueue(abs_link, file_save_path, self.FILE_TYPE_BIN)
-                    else: # 替换，特别是以//开头那种url
+                    else:  # 替换，特别是以//开头那种url
                         css_content = css_content.replace(raw_u, f'url({abs_link})')
                 style.string = css_content
 
@@ -406,7 +407,7 @@ class TemplateCrawler(object):
                             self.__log_error_resource(abs_link, file_save_path)
 
                 css['href'] = replace_url
-            else: # 修正link url为绝对链接地址
+            else:  # 修正link url为绝对链接地址
                 css['href'] = abs_link
 
             # 将跨域锁定和来源校验关闭
@@ -444,12 +445,12 @@ class TemplateCrawler(object):
                     text = text.replace(relative_u, replace_url)
                 else:
                     file_save_path = f"{self.__get_css_full_path()}/{file_name}"
-                    replace_url = f"{file_name}"   # 由于是相对于css文件的引入,因此是平级关系, 如果是图片就需要从../img目录下
+                    replace_url = f"{file_name}"  # 由于是相对于css文件的引入,因此是平级关系, 如果是图片就需要从../img目录下
                     self.__url_enqueue(abs_link, file_save_path, self.FILE_TYPE_BIN)
                     text = text.replace(relative_u, replace_url)
 
         imported_css = re.findall('@import\s+["\']+(.*?)["\']', text)  # css里 @import的情况
-        imported_css2 = re.findall('@import\s+url\(.*?\)', text) # > ['@import url(font-awesome.min.css)']
+        imported_css2 = re.findall('@import\s+url\(.*?\)', text)  # > ['@import url(font-awesome.min.css)']
         if imported_css2 is not None:
             for x in imported_css2:
                 x = self.__get_style_url_link(x.split()[1])
@@ -539,19 +540,19 @@ class TemplateCrawler(object):
     async def __async_get_request_text(self, url, force_as_text=False):
         max_retry = config.max_retry
         time_out = config.http_timeout
-        for i in range(1, max_retry+1):
+        for i in range(1, max_retry + 1):
             to = time_out * i
             try:
                 logger.info("async craw[%s] %s", i, url)
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url, timeout=to, headers=self.header) as resp:
-                        if resp.status!=200:
+                        if resp.status != 200:
                             continue
-                        elif resp.status==404:
+                        elif resp.status == 404:
                             break
-                        elif not resp.content_type.startswith("text") and force_as_text is False: # 如果是二进制的，防止错误
+                        elif not resp.content_type.startswith("text") and force_as_text is False:  # 如果是二进制的，防止错误
                             break
-                        txt =  await resp.text()
+                        txt = await resp.text()
                         encoding = resp.charset
                 return txt, encoding
             except Exception as e:
@@ -559,16 +560,17 @@ class TemplateCrawler(object):
                     continue
                 else:
                     logger.error(e)
-        return  None, None
+        return None, None
 
     def __pre_process_page(self, soup, url):
-        delete_node_attr = [{"link":("rel", "alternate")}, {"link": ("rel", "dns-prefetch")}, {"link":("rel", "manifest")}]
+        delete_node_attr = [{"link": ("rel", "alternate")}, {"link": ("rel", "dns-prefetch")},
+                            {"link": ("rel", "manifest")}]
         for rule in delete_node_attr:
             for k, v in rule.items():
                 nodes = soup.find_all(k)
                 if nodes:
                     for n in nodes:
-                        attr_name, attr_val=v
+                        attr_name, attr_val = v
                         attr = n.get(attr_name)
                         if attr and attr_val in attr:
                             n.decompose()
@@ -602,11 +604,12 @@ class TemplateCrawler(object):
 
                     soup = BeautifulSoup(html, "lxml")
                     soup = self.__pre_process_page(soup, url)
-                    soup = await self.__rend_template(soup, url)
+                    soup = await self.__rend_template(soup, url)  # 这里是个核心函数，下载页面里的image, js, css等资源
 
                     new_url = self.__get_same_site_link(soup, url)  # 获取全部同网站下的链接页面，当然会检查一下是否要全栈抓取
                     for u in new_url:  # 新产生的url进入队列，用于全站抓取时候
-                        if is_same_web_site_link(u, url) and is_under_same_link_folder(u, url) and u not in html_dedup_list: # 同站，同目录，非重复
+                        if is_same_web_site_link(u, url) and is_under_same_link_folder(u,
+                                                                                       url) and u not in html_dedup_list:  # 同站，同目录，非重复
                             self.html_link_queue.put(u)
                             html_dedup_list.append(u)
 
@@ -627,15 +630,16 @@ class TemplateCrawler(object):
 
         self.logger.info("html页面分析完毕")
         self.__quit_cmd_enqueue()  # 没有新的url产生了
-        self.__wait_unitl_task_finished() # 这个时候异步请求也全部落到磁盘上了
-        await self.__html_content_link_2_local() # 调整html模版（磁盘）上的link为本地的地址
+        self.__wait_unitl_task_finished()  # 这个时候异步请求也全部落到磁盘上了
+        #self.download_queue.join()
+        await self.__html_content_link_2_local()  # 调整html模版（磁盘）上的link为本地的地址
         await self.__make_single_page()  # 调整为单张页面
-        await self.__make_web_framework_template() #根据用户设置转化为支持的web框架模版
+        await self.__make_web_framework_template()  # 根据用户设置转化为支持的web框架模版
         await self.__make_report()
 
         zip_full_path = self.__get_zip_full_path()
         self.__make_zip(zip_full_path)
-        template_zip_file =  self.__get_zip_relative_path(zip_full_path)
+        template_zip_file = self.__get_zip_relative_path(zip_full_path)
         self.zip_result_file = template_zip_file
         return template_zip_file
 
@@ -654,7 +658,7 @@ class TemplateCrawler(object):
             return
 
         def __find_css_link(tag):
-            return tag.name=='link' and tag.has_attr("rel") and  'stylesheet' in tag.get('rel')
+            return tag.name == 'link' and tag.has_attr("rel") and 'stylesheet' in tag.get('rel')
 
         for disk_path, file_name, url in self.downloaded_html_url:
             html_file = disk_path
@@ -663,7 +667,8 @@ class TemplateCrawler(object):
             soup = BeautifulSoup(html_content, 'lxml')
 
             ## 压缩css进html
-            css_links = soup.find_all(__find_css_link)  #<link rel="stylesheet" href="_static/default.css" type="text/css" />
+            css_links = soup.find_all(
+                __find_css_link)  # <link rel="stylesheet" href="_static/default.css" type="text/css" />
             if css_links:
                 for css_el in css_links:
                     href = css_el.get("href")
@@ -679,7 +684,8 @@ class TemplateCrawler(object):
                             css_resource_relative = self.__get_style_url_link(r)
                             if is_inline_resource(css_resource_relative):
                                 continue
-                            b64_data, type = await base64_encode_resource(self.__get_css_full_path(), css_resource_relative)
+                            b64_data, type = await base64_encode_resource(self.__get_css_full_path(),
+                                                                          css_resource_relative)
                             data = f"url('data:{type};charset=utf-8;base64,{b64_data}')"
                             css_content = css_content.replace(r, data)
 
@@ -692,7 +698,7 @@ class TemplateCrawler(object):
 
             ## 压缩js进html
             def __find_js_ref(tag):
-                return tag.name=='script' and tag.has_attr("src")
+                return tag.name == 'script' and tag.has_attr("src")
 
             js_els = soup.find_all(__find_js_ref)
             if js_els:
@@ -719,7 +725,7 @@ class TemplateCrawler(object):
                     if img_el_f and img_el_f.startswith("http"):
                         continue
                     b64_data, type = await base64_encode_resource(self.__get_tpl_full_path(),
-                                                            img_el_f)
+                                                                  img_el_f)
                     data = f"data:{type};charset=utf-8;base64,{b64_data}"
                     img['src'] = data
 
@@ -745,7 +751,7 @@ class TemplateCrawler(object):
             return
 
         def __find_css_link(tag):
-            return tag.name=='link' and tag.has_attr("rel") and  'stylesheet' in tag.get('rel')
+            return tag.name == 'link' and tag.has_attr("rel") and 'stylesheet' in tag.get('rel')
 
         for disk_path, file_name, url in self.downloaded_html_url:
             html_file = disk_path
@@ -754,7 +760,8 @@ class TemplateCrawler(object):
             soup = BeautifulSoup(html_content, 'lxml')
 
             ## link
-            css_links = soup.find_all(__find_css_link)  #<link rel="stylesheet" href="_static/default.css" type="text/css" />
+            css_links = soup.find_all(
+                __find_css_link)  # <link rel="stylesheet" href="_static/default.css" type="text/css" />
             if css_links:
                 for css_el in css_links:
                     href = css_el.get("href")
@@ -765,7 +772,7 @@ class TemplateCrawler(object):
 
             ## js
             def __find_js_ref(tag):
-                return tag.name=='script' and tag.has_attr("src")
+                return tag.name == 'script' and tag.has_attr("src")
 
             js_els = soup.find_all(__find_js_ref)
             if js_els:
@@ -841,11 +848,11 @@ class TemplateCrawler(object):
                         if raw_link is None or raw_link.startswith("#") or not is_page_url(raw_link):
                             continue
 
-                        abs_link = get_abs_url(url, raw_link) #新产生的url
+                        abs_link = get_abs_url(url, raw_link)  # 新产生的url
                         abs_link = format_url(abs_link)
                         a['href'] = abs_link
 
-                        if is_page_url(abs_link) and not is_img_ext(abs_link) and  abs_link not in new_url:
+                        if is_page_url(abs_link) and not is_img_ext(abs_link) and abs_link not in new_url:
                             new_url.append(abs_link)
                     except Exception as e:
                         self.logger.info("%s: %s", a, e)
@@ -896,10 +903,10 @@ class TemplateCrawler(object):
                 self.logger.error("async retry[%s] error: %s", i, e)
                 self.logger.exception(e)
                 if i < max_retry:
-                    self.logger.info("async retry craw[%s] %s" % (i+1, url))
+                    self.logger.info("async retry craw[%s] %s" % (i + 1, url))
                     continue
 
-        return is_succ # 这个地方不能删除，如果返回False, 上层会记录错误的抓取并最终体现在report里
+        return is_succ  # 这个地方不能删除，如果返回False, 上层会记录错误的抓取并最终体现在report里
 
     async def __async_spider_get(self, url, header, file_save_path, file_type='bin', to=10):
         async with aiohttp.ClientSession() as session:
@@ -909,7 +916,7 @@ class TemplateCrawler(object):
     async def __do_download(self, session, url, header, file_save_path, file_type, to):
         try:
             async with session.get(url, timeout=to, headers=header) as response:
-                if response.status!=200:
+                if response.status != 200:
                     return False
 
                 if file_type == self.FILE_TYPE_TEXT:
@@ -932,33 +939,50 @@ class TemplateCrawler(object):
 
         :return:
         """
-        while True:
-            if self.download_finished is True:
-                break
-            cmd = self.download_queue.get()
-            if not cmd:  # 超时没拿到东西，让出cpu然后再来拿
-                self.logger.info("queue get nothing")
-                await asyncio.sleep(config.url_download_queue_timeout)
-                continue
+        quit_wait_times = 5  # 当收到quit命令时，还要再等待一会
+        try:
+            while True:
+                if self.download_finished is True:
+                    break
+                cmd = self.download_queue.get()
+                if not cmd:  # 超时没拿到东西，让出cpu然后再来拿
+                    self.logger.info("queue get nothing")
+                    await asyncio.sleep(config.url_download_queue_timeout)
+                    continue
 
-            self.logger.debug("queue get cmd %s", cmd)
-            cmd_content = cmd['cmd']
-            if cmd_content == self.CMD_QUIT: # 虽然这里收到了，但是不能排除其他协程还在等待网络返回
-                self.logger.info("quit download task")
-                self.download_finished = True
-                break  # 收到最后一条命令，退出。任务结束
-            else:
-                url = cmd['url']
-                save_path = cmd['file_save_path']
-                file_type = cmd['file_type']
-                is_succ = await self.__async_dl_and_save(url, save_path, file_type)
-
-                if is_succ is False:
-                    self.logger.error("async get %s error", url)
-                    self.__log_error_resource(url, self.__get_relative_report_file_path(save_path))
-                    self.__set_dup_url(url, save_path)
+                self.logger.debug("queue get cmd %s", cmd)
+                cmd_content = cmd['cmd']
+                if cmd_content == self.CMD_QUIT:  # 虽然这里收到了，但是不能排除其他协程还在等待网络返回,还在向队列里新增url
+                    self.logger.info("quit download task")
+                    self.download_finished = True
+                    #self.download_queue.task_done()
+                    if quit_wait_times>0:
+                        quit_wait_times -= 1
+                        await asyncio.sleep(1)
+                        continue
+                    else:
+                        break  # 收到最后一条命令，退出。任务结束
                 else:
-                    self.__set_dup_url(url, save_path)
+                    url = cmd['url']
+                    save_path = cmd['file_save_path']
+                    file_type = cmd['file_type']
+                    try:
+                        is_succ = await self.__async_dl_and_save(url, save_path, file_type)
+                    except asyncio.exceptions.CancelledError as ce:
+                        logger.error(ce)
+                        is_succ = False
+                    if is_succ is False:
+                        self.logger.error("async get %s error", url)
+                        self.__log_error_resource(url, self.__get_relative_report_file_path(save_path))
+                        self.__set_dup_url(url, save_path)
+                    else:
+                        self.__set_dup_url(url, save_path)
+        except Exception as e:
+            logger.exception(e)
+            pass
+        except asyncio.exceptions.CancelledError as b:
+            logger.error(b)
+            pass
 
     def __make_zip(self, zip_full_path):
         shutil.make_archive(zip_full_path, 'zip', self.download_temp_abs_dir, base_dir=self.__get_tpl_dir())
@@ -975,12 +999,18 @@ if __name__ == "__main__":
     https://prium.github.io/falcon/
     """
     url_list = [
-        "https://uselooper.com/",
+        "http://www.qdujava.com",
     ]
     n1 = datetime.now()
-    spider = TemplateCrawler(url_list, save_base_dir="/home/cxu/spider-template/", header={'User-Agent': config.default_ua},
-                             grab_out_site_link=True, to_single_page=False, full_site=True, ref_model=False, framework="django")
+    spider = TemplateCrawler(url_list, save_base_dir="/home/cxu/spider-template/",
+                             header={'User-Agent': config.default_ua}, grab_out_site_link=True, to_single_page=False,
+                             full_site=True, ref_model=False, framework=None)
 
-    asyncio.run(spider.template_crawl())
-    n2 = datetime.now()
-    print(n2 - n1)
+#    spider = TemplateCrawler(url_list, save_base_dir="/home/cxu/spider-template/",
+#                             header={'User-Agent': config.default_ua},
+#                             grab_out_site_link=True, to_single_page=True, full_site=False, ref_model=False,
+#                             framework=None)
+
+asyncio.run(spider.template_crawl())
+n2 = datetime.now()
+print(n2 - n1)
