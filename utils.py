@@ -42,7 +42,7 @@ def get_base_url(url):
     :return:
     """
     ret = urlparse(url)
-    u = "%s://%s" % (ret.schema, ret.netloc)
+    u = "%s://%s" % (ret.scheme, ret.netloc)
     return format_url(u)
 
 
@@ -287,16 +287,19 @@ def to_framework_url_format(path, framework_name):
 
 
 if __name__ == "__main__":
-    urls_test = [
-        "http://markup.themewagon.com/mountain_v_2.5.3/assets/lib/menuzord/css/menuzord.css",
-        "http://a.com?main.css?a=b;c=d;",
-        "http://a.com/a/b/c/xx-dd;a=c;b=d",
-        "http://res.weiunity.com/template/boke1/resource/fonts/icomoon.ttf?ngfxmq",
-        "https://upload.jianshu.io/users/upload_avatars/8739889/da9dcd2a-3a25-49fa-a0db-ed752b7bc6f8.png?imageMogr2/auto-orient/strip|imageView2/1/w/96/h/96'",
-        "https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800",
-        "https://www.googletagmanager.com/gtag/js?id=UA-122907869-1",
-        "https://fu.com/a/ttdd.html",
-        "http://g.alicdn.com/??kissy/k/6.2.4/seed-min.js,kg/global-util/1.0.7/index-min.js,tb/tracker/4.3.12/index.js,kg/tb-nav/2.5.3/index-min.js,secdev/sufei_data/3.3.5/index.js",
-    ]
-    for u in urls_test:
-        print(get_file_name_from_url(u, []))
+    # urls_test = [
+    #     "http://markup.themewagon.com/mountain_v_2.5.3/assets/lib/menuzord/css/menuzord.css",
+    #     "http://a.com?main.css?a=b;c=d;",
+    #     "http://a.com/a/b/c/xx-dd;a=c;b=d",
+    #     "http://res.weiunity.com/template/boke1/resource/fonts/icomoon.ttf?ngfxmq",
+    #     "https://upload.jianshu.io/users/upload_avatars/8739889/da9dcd2a-3a25-49fa-a0db-ed752b7bc6f8.png?imageMogr2/auto-orient/strip|imageView2/1/w/96/h/96'",
+    #     "https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800",
+    #     "https://www.googletagmanager.com/gtag/js?id=UA-122907869-1",
+    #     "https://fu.com/a/ttdd.html",
+    #     "http://g.alicdn.com/??kissy/k/6.2.4/seed-min.js,kg/global-util/1.0.7/index-min.js,tb/tracker/4.3.12/index.js,kg/tb-nav/2.5.3/index-min.js,secdev/sufei_data/3.3.5/index.js",
+    # ]
+    # for u in urls_test:
+    #     print(get_file_name_from_url(u, []))
+
+    print(get_domain('http://www.c.baidu.com:9000/a/b/c?a=b'))
+    print(get_base_url('http://www.c.baidu.com:9000/a/b/c?a=b'))
