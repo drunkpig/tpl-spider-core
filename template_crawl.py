@@ -371,6 +371,7 @@ class TemplateCrawler(object):
     async def __dl_link(self, soup, url):
         """
         下载<link>标签里的资源，并替换html里的地址
+        # TODO 处理 css 里的 @import
         :param soup:
         :param url:
         :return:
@@ -544,7 +545,7 @@ class TemplateCrawler(object):
             to = time_out * i
             try:
                 logger.info("async craw[%s] %s", i, url)
-                async with aiohttp.ClientSession() as session:
+                async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
                     async with session.get(url, timeout=to, headers=self.header) as resp:
                         if resp.status != 200:
                             continue
